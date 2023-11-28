@@ -75,7 +75,7 @@ public class DynamicArray<T> {
 
     }
 
-    public void remove(int index)
+    public void remove(int index){}
     private void ensureCapacity(int minCapacity){
         if(minCapacity > this.array.length){
             int newCapacity = Math.max(array.length * 2, minCapacity);
