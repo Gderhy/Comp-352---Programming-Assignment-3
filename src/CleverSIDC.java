@@ -129,7 +129,7 @@ public class CleverSIDC {
 
         test.printData();
 
-        System.out.println(Arrays.toString(test.allKeys()));
+        System.out.println(test.rangeKey(1, 3));
 
 
 

@@ -1,8 +1,11 @@
+import java.util.Currency;
+
 public class HashTable extends DataStructure {
 
     private final int capacity;
     private Entry[] table;
     private int size;
+
     public HashTable(int capacity) {
 
         this.capacity = capacity;
@@ -16,7 +19,7 @@ public class HashTable extends DataStructure {
         key ^= (key >>> 33);
         key *= 0xc4ceb9fe1a85ec53L;
         key ^= (key >>> 33);
-        return (int) (key % capacity);
+        return Math.abs((int) (key % capacity));
     }
 
 
@@ -28,14 +31,14 @@ public class HashTable extends DataStructure {
     @Override
     public long[] allKeys() {
 
-        if(isEmpty()) return new long[0];
+        if (isEmpty()) return new long[0];
 
         long[] keyArray = new long[size];
 
         int count = 0;
-        for(Entry current : table){
+        for (Entry current : table) {
 
-            while(current != null){
+            while (current != null) {
 
                 keyArray[count++] = current.key;
                 current = current.next;
@@ -95,7 +98,7 @@ public class HashTable extends DataStructure {
         while (current != null) {
 
             if (current.key == key) {
-                if (previous == null){ // if the key found was the first element in the collision list
+                if (previous == null) { // if the key found was the first element in the collision list
 
                     table[index] = current.next;
 
@@ -138,23 +141,93 @@ public class HashTable extends DataStructure {
 
     @Override
     public long nextKey(long key) {
-        return 0;
+        if (isEmpty()) return -1;
+
+        int index = hash(key);
+        Entry current = table[index];
+
+        // Find the key in the current bucket
+        while (current != null && current.key != key) {
+            current = current.next;
+        }
+
+        if (current != null && current.next != null) {
+            // Next key in the same bucket
+            return current.next.key;
+        } else {
+            // Look for the next key in subsequent buckets
+            for (int i = index + 1; i < capacity; i++) {
+                if (table[i] != null) {
+                    return table[i].key;
+                }
+            }
+        }
+
+        return -1; // No next key found
     }
+
 
     @Override
     public long prevKey(long key) {
-        return 0;
+        if (isEmpty()) return -1;
+
+        int index = hash(key);
+
+        // Check for previous keys in the same bucket first
+        Entry current = table[index];
+        Entry prevEntry = null;
+        while (current != null && current.key != key) {
+            prevEntry = current;
+            current = current.next;
+        }
+
+        if (prevEntry != null) {
+            return prevEntry.key; // Found previous key in the same bucket
+        }
+
+        // Traverse previous buckets to find the previous key
+        for (int i = index - 1; i >= 0; i--) {
+            current = table[i];
+            if (current != null) {
+                while (current.next != null) {
+                    current = current.next; // Find the last key in the bucket
+                }
+                return current.key;
+            }
+        }
+
+        return -1; // No previous key found
     }
+
 
     @Override
     public int rangeKey(long key1, long key2) {
-        return 0;
+        int count = 0;
+        for (Entry current : table) {
+            while (current != null) {
+                if (key1 <= current.key && current.key <= key2) {
+                    count++;
+                }
+                current = current.next;
+            }
+        }
+        return count;
     }
+
 
     @Override
     public void printData() {
+        System.out.println("{");
 
+        for (Entry current : table) {
+            while (current != null) { // Iterate over the linked list
+                System.out.println("\t" + current.key + " : " + current.value + ",");
+                current = current.next;
+            }
+        }
+        System.out.println("}");
     }
+
 
     @Override
     public int getSize() {
